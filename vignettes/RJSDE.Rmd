@@ -1,0 +1,66 @@
+---
+title: "Visualize Differential Expression results with Rvisdiff"
+author: "David Barrios, Carlos Prieto"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{Visualize Differential Expression results with Rvisdiff}
+    %\VignetteEngine{knitr::rmarkdown}
+    \usepackage[utf8]{inputenc}
+---
+
+Load library and data and prepare sample conditions.
+
+```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+library(Rvisdiff)
+
+library(airway)
+data("airway")
+se <- airway
+se$dex <- relevel(se$dex, ref="untrt")
+countdata <- assay(se)
+coldata <- colData(se)
+```
+
+## DESeq2 example
+```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+library(DESeq2)
+dds <- DESeqDataSet(se, design = ~ cell + dex)
+dds <- DESeq(dds)
+dres <- results(dds, independentFiltering = FALSE)
+
+DEreport(dres, countdata, coldata$dex)
+```
+
+## edgeR example
+```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+library(edgeR)
+design <- model.matrix(~ cell + dex, data = coldata)
+dl <- DGEList(counts = countdata, group = coldata$dex)
+dl <- calcNormFactors(dl)
+dl <- estimateDisp(dl, design=design)
+de <- exactTest(dl,pair=1:2)
+tt <- topTags(de, n = Inf, adjust.method = "BH", sort.by = "none")
+
+DEreport(tt, countdata, coldata$dex)
+```
+
+## limma example
+```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+library(limma)
+design <- model.matrix(~ 0 + dex + cell, data = coldata)
+contr <- makeContrasts(dextrt - dexuntrt,levels=colnames(design))
+limmaexprs <- voom(countdata, design)
+fit <- lmFit(limmaexprs, design)
+fit <- contrasts.fit(fit, contrasts=contr)
+fit <- eBayes(fit)
+limmares <- topTable(fit, coef = 1, number = Inf,
+    sort.by = "none", adjust.method = "BH")
+
+DEreport(limmares, countdata, coldata$dex)
+```
+
+# SessionInfo {-}
+
+```{r sessionInfo}
+sessionInfo()
+```

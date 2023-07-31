@@ -1,0 +1,152 @@
+div.graph { position: relative; }
+
+text { font-size: 10px; font-family: sans-serif; }
+
+rect.button { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
+image.changeColor { cursor: pointer; }
+.rowClust .link, .colClust .link { vector-effect: non-scaling-stroke; fill: none; stroke: #ccc; stroke-width: 1.5px; shape-rendering: crispEdges; }
+.brush .extent{ fill-opacity: 0.15; stroke-width: 1px; fill: #333; stroke: #333; }
+
+.marker { fill: none; stroke: black; stroke-width: 3px; opacity: 0; }
+.axis path, .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
+.axis.grid .tick line { opacity: 0.2; }
+
+path.line { fill: none; }
+line.bound { stroke: black; fill: none; stroke-dasharray: 3,3; }
+
+.boxplot line, .boxplot rect, .boxplot circle { stroke: #000; stroke-width: 1px; }
+.boxplot rect { fill: #1f77b4; }
+.boxplot.g2 rect { fill: #ff7f0e; }
+.boxplot .center { stroke-dasharray: 3,3; }
+.boxplot .outlier { fill: none;  stroke: #000; }
+g.left-arrow, g.right-arrow { fill: #fff;  stroke: #000; stroke-width: 2px; }
+
+.g-a { fill: #aec7e8; }
+.g-b { fill: #ffbb78; }
+.g-split { stroke: #000; stroke-opacity: .18; shape-rendering: crispEdges; }
+
+.buttons rect { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
+.buttons text { stroke-width: 0.5px; font-size: 10px; fill: #444; }
+.buttons .axis path, .buttons .axis line { shape-rendering: auto; }
+.scale text { font-size: 12px; fill: #444; }
+line.link { stroke: #999; stroke-opacity: .6; }
+.linkText { font-size: 7px; fill: #999; }
+.net > .node > circle { stroke: #fff; stroke-width: 1.5px; }
+.node > text { fill: #333; }
+.area { opacity: 0.2; stroke-width: 3; }
+
+div.tooltip {
+  position: absolute;
+  z-index: 99;
+  display: none;
+  background-color: rgba(0,0,0,0.8);
+  font-family: sans-serif;
+  font-size: 12px;
+  color: white;
+  padding: 4px;
+}
+
+.buttons .axis,
+.brushSlider .axis {
+  font: 10px sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.buttons .axis .domain,
+.brushSlider .axis .domain {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .3;
+  stroke-width: 10px;
+  stroke-linecap: round;
+}
+
+.buttons .axis .halo,
+.brushSlider .axis .halo {
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 8px;
+  stroke-linecap: round;
+}
+
+.buttons .handle,
+.brushSlider .handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: .5;
+  stroke-width: 1.2px;
+}
+.brushSlider .extent {
+  fill-opacity: 0.15;
+  fill: #333;
+}
+.brushSlider .resize > rect {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: .5;
+  stroke-width: 1.2px;
+}
+
+#barplot .controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 16px;
+}
+#barplot .controls .option {
+  line-height: 1.2;
+  padding: 3px;
+  margin: 4px 0; 
+  text-align: center;
+  background: #888;
+  color: #fff;
+  border: solid 2px rgba(0,0,0,0);
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+div.tab-wrap { padding-bottom: 10px; }
+div.tab-wrap>div:first-child { text-align: right; border-top: solid 1px #888; }
+div.tab-wrap>div:first-child>div { position: relative; top: -27px; display: inline-block; padding: 4px 8px; margin: 0 2px; border: solid 1px #888; border-radius: 5px 5px 0 0; background: #fff; width: 100px; text-align: center; cursor: pointer; font-size: 12px; }
+div.tables { overflow-y: auto; clear: both; }
+div.switch { width: 30px; height: 21px; margin: 5px; background-color: #888; border-radius: 5px; float: right; position: relative; top: -28px; margin-right: 10px; cursor: pointer; }
+
+#symheatmap div.controls { position:absolute; left:0; top:0; padding: 0 10px 10px; background-color: rgba(255, 255, 255, 0.8); }
+#symheatmap div.controls>p { margin: 20px 0 10px 0; }
+#symheatmap div.controls>select { background:#fff; }
+
+.hidden { display: none; }
+.caption { margin-bottom: 5rem; }
+
+#information { margin-bottom: 30px; }
+
+.full-width::after {
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+
+body>header, body>footer>section {
+  background-color: #002633 !important;
+}
+
+body>footer>section p {
+ color: #7697A2;
+}
+
+body>header h1 {
+  padding: 30px 0 15px 10px;
+  margin: 0;
+  color: #fff;  
+}
+
+.loading {
+  padding: 12rem 0 18rem 0;
+}

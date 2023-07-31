@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Differential Expression</title>
+<link rel="stylesheet" type="text/css" href="css/responsee.css">
+<link rel="stylesheet" type="text/css" href="css/datatables.css">
+<link rel="stylesheet" type="text/css" href="css/select.datatables.css">
+<link rel="stylesheet" type="text/css" href="css/graphs.css">
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/datatables.min.js"></script>
+<script src="js/graphs.js"></script>
+</head>
+<body class="size-1140">
+<!--json-->
+      <header>
+        <h1>Results</h1>
+      </header>
+      <section class="full-width padding">
+<h2 class="loading text-center">Loading...</h2>
+<div class="content hidden">
+<div class="s-12 m-12 l-6">
+<h4 class="text-center">Volcano plot</h4>
+<div class="graph plot" id="volcano"></div>
+</div>
+<div class="s-12 m-12 l-6">
+<h4 class="text-center">MA plot</h4>
+<div class="graph plot" id="maplot"></div>
+</div>
+<div class="text-center" id="information"></div>
+<table id="table" class="display" cellspacing="0" width="100%"></table>
+<p class="caption"><b>Figure 1</b> (top-left) Volcano plot of differential expression results. It shows the log2 scaled fold change (x axis) and the minus log10 p-value (y axis) of each gene in the differential expression analysis. Genes with a significant expression change are highlighted as red dots. <b>Figure 2</b> (top-right) MA of differential expression results. It shows the log2 scaled mean of expression (x axis) and the log2 scaled fold change (y axis) of each gene in the differential expression analysis. Genes with a significative expression change are highlighted as red dots. <b>Table 1</b> Summary of differential expression analysis.</p>
+<div class="cpmgraphs hidden">
+<div class="s-12 m-12 l-6">
+<h4 class="text-center">Line chart</h4>
+<div id="linechart" class="graph"></div>
+<p class="caption"><b>Figure 3</b> Line chart which shows the expression value (normalized as CPMs) of selected genes for each sample<span class="hidden first-genes"> (Showing only 100 first genes)</span>.</p>
+</div>
+<div class="s-12 m-12 l-6">
+<h4 class="text-center">Boxplot</h4>
+<div id="boxplot" class="graph"></div>
+<p class="caption"><b>Figure 4</b> Boxplot which shows the expression value distribution (normalized as CPMs) of selected genes in each group of samples defined<span class="hidden first-genes"> (Showing only 100 first genes)</span>.</p>
+</div>
+<h4 class="text-center">Heatmap</h4>
+<div id="heatmap" class="graph"></div>
+<p class="caption"><b>Figure 5</b> Heatmap of expression values (normalized as CPMs) of selected genes in each sample<span class="hidden first-genes"> (Showing only 100 first genes)</span>.</p>
+</div>
+</div>
+      </section>
+      <footer>
+         <section class="full-width padding">
+            <div class="s-12 l-6">
+               <p>Copyright 2018, Bioinformatics, Nucleus, University of Salamanca</p>
+            </div>
+            <div class="s-12 l-6">
+               <p class="right">Developed by <a href="http://bioinfo.usal.es" title="Bioinformatics - USAL">Bioinformatics - USAL</a></p>
+            </div>
+         </section>
+      </footer>
+</body>
+</html>

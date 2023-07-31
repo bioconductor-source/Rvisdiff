@@ -1,0 +1,124 @@
+table.dataTable tbody > tr.selected,
+table.dataTable tbody > tr > .selected {
+  background-color: rgb(240, 240, 130, 0.12); /*#B0BED9*/
+}
+table.dataTable.stripe tbody > tr.odd.selected,
+table.dataTable.stripe tbody > tr.odd > .selected, table.dataTable.display tbody > tr.odd.selected,
+table.dataTable.display tbody > tr.odd > .selected {
+  background-color: rgb(240, 240, 130, 0.2); /*#acbad4*/
+}
+table.dataTable.hover tbody > tr.selected:hover,
+table.dataTable.hover tbody > tr > .selected:hover, table.dataTable.display tbody > tr.selected:hover,
+table.dataTable.display tbody > tr > .selected:hover {
+  background-color: rgb(240, 240, 130, 0.16); /*#aab7d1*/
+}
+table.dataTable.order-column tbody > tr.selected > .sorting_1,
+table.dataTable.order-column tbody > tr.selected > .sorting_2,
+table.dataTable.order-column tbody > tr.selected > .sorting_3,
+table.dataTable.order-column tbody > tr > .selected,
+table.dataTable.display tbody > tr.selected > .sorting_1,
+table.dataTable.display tbody > tr.selected > .sorting_2,
+table.dataTable.display tbody > tr.selected > .sorting_3,
+table.dataTable.display tbody > tr > .selected {
+  background-color: rgb(236, 236, 126, 0.12); /*#acbad5*/
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_1,
+table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_1 {
+  background-color: rgb(236, 236, 126, 0.2); /*#a6b4cd*/
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_2,
+table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_2 {
+  background-color: rgb(236, 236, 126, 0.21); /*#a8b5cf*/
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_3,
+table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_3 {
+  background-color: rgb(236, 236, 126, 0.22); /*#a9b7d1*/
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_1,
+table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_1 {
+  background-color: rgb(236, 236, 126, 0.12); /*#acbad5*/
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_2,
+table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_2 {
+  background-color: rgb(236, 236, 126, 0.11);/*#aebcd6*/
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_3,
+table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_3 {
+  background-color: rgb(236, 236, 126, 0.12); /*#afbdd8*/
+}
+table.dataTable.display tbody > tr.odd > .selected,
+table.dataTable.order-column.stripe tbody > tr.odd > .selected {
+  background-color: rgb(236, 236, 126, 0.2); /*#a6b4cd*/
+}
+table.dataTable.display tbody > tr.even > .selected,
+table.dataTable.order-column.stripe tbody > tr.even > .selected {
+  background-color: rgb(236, 236, 126, 0.12); /*#acbad5*/
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_1,
+table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_1 {
+  background-color: rgb(236, 236, 126, 0.16); /*#a2aec7*/
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_2,
+table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_2 {
+  background-color: rgb(236, 236, 126, 0.17); /*#a3b0c9*/
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_3,
+table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_3 {
+  background-color: rgb(236, 236, 126, 0.18); /*#a5b2cb*/
+}
+table.dataTable.display tbody > tr:hover > .selected,
+table.dataTable.display tbody > tr > .selected:hover,
+table.dataTable.order-column.hover tbody > tr:hover > .selected,
+table.dataTable.order-column.hover tbody > tr > .selected:hover {
+  background-color: rgb(236, 236, 126, 0.15); /*#a2aec7*/
+}
+
+table.dataTable tbody td.select-checkbox,
+table.dataTable tbody th.select-checkbox {
+  position: relative;
+}
+table.dataTable tbody td.select-checkbox:before, table.dataTable tbody td.select-checkbox:after,
+table.dataTable tbody th.select-checkbox:before,
+table.dataTable tbody th.select-checkbox:after {
+  display: block;
+  position: absolute;
+  top: 1.2em;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+}
+table.dataTable tbody td.select-checkbox:before,
+table.dataTable tbody th.select-checkbox:before {
+  content: ' ';
+  margin-top: -3px;
+  margin-left: -6px;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+table.dataTable tbody tr.disabled td.select-checkbox::before,
+table.dataTable tbody tr.disabled th.select-checkbox::before {
+  border-color: #aaa;
+  background-color: #eee;
+}
+table.dataTable tr.selected td.select-checkbox:after,
+table.dataTable tr.selected th.select-checkbox:after {
+  content: '\2714';
+  margin-top: -11px;
+  margin-left: -4px;
+  text-align: center;
+  text-shadow: 1px 1px rgb(240, 240, 130, 0.12), -1px -1px rgb(240, 240, 130, 0.12), 1px -1px rgb(240, 240, 130, 0.12), -1px 1px rgb(240, 240, 130, 0.12); /*#B0BED9*/
+}
+
+div.dataTables_wrapper span.select-info,
+div.dataTables_wrapper span.select-item {
+  margin-left: 0.5em;
+}
+
+@media screen and (max-width: 640px) {
+  div.dataTables_wrapper span.select-info,
+  div.dataTables_wrapper span.select-item {
+    margin-left: 0;
+    display: block;
+  }
+}

@@ -1,0 +1,19 @@
+Package: Rvisdiff
+Type: Package
+Version: 1.0.0
+Date: 2023-07-31
+Title: Interactive Graphs for Differential Expression
+Description: Creates interactive graphs with 'R' for most popular
+        differential expression methods.
+License: GPL-2 | GPL-3
+Depends: R (>= 4.3.1)
+Imports: edgeR, DESeq2, limma, SummarizedExperiment, utils
+Suggests: knitr, rmarkdown, airway
+VignetteBuilder: knitr
+NeedsCompilation: no
+biocViews: Software, Visualization, RNASeq, DataRepresentation,
+        DifferentialExpression
+Authors@R: c(  
+    person("Carlos", "Prieto", email = "cprietos@usal.es", role = "aut", comment = c(ORCID = "0000-0003-2064-4842")),
+    person("David", "Barrios", email = "metal@usal.es", role = c("cre","aut"), comment = c(ORCID = "0000-0003-4465-0200"))    
+    )

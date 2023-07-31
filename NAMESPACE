@@ -1,0 +1,6 @@
+export(DEreport)
+importFrom(SummarizedExperiment, colData)
+importFrom(DESeq2, results)
+importFrom(edgeR, cpm, exactTest, topTags)
+importFrom(limma, topTable)
+importFrom(utils, combn, head)
