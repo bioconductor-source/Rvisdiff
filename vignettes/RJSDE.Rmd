@@ -1,9 +1,9 @@
 ---
-title: "Visualize Differential Expression results with Rvisdiff"
+title: "Visualize Differential Expression results"
 author: "David Barrios, Carlos Prieto"
 output: rmarkdown::html_vignette
 vignette: >
-    %\VignetteIndexEntry{Visualize Differential Expression results with Rvisdiff}
+    %\VignetteIndexEntry{Visualize Differential Expression results}
     %\VignetteEngine{knitr::rmarkdown}
     \usepackage[utf8]{inputenc}
 ---
