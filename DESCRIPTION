@@ -7,7 +7,7 @@ Description: Creates a muti-graph web page which allows the interactive explorat
 License: GPL-2 | GPL-3
 Depends: R (>= 4.4.0)
 Imports: edgeR, DESeq2, limma, SummarizedExperiment, utils
-Suggests: knitr, rmarkdown, airway
+Suggests: knitr, rmarkdown, airway, BiocStyle, matrixTests, BiocManager
 VignetteBuilder: knitr
 NeedsCompilation: no
 biocViews: Software, Visualization, RNASeq, DataRepresentation,

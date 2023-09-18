@@ -1,5 +1,6 @@
 DEreport <- function(DE, counts = NULL, groups = NULL,
-    cutoff = 0.05, normalized = NULL, directory = "DEreport"){
+    cutoff = 0.05, normalized = NULL, genes = NULL, pvalue = NULL,
+    baseMean = NULL, log2FoldChange = NULL, directory = "DEreport"){
 
     if(!is.null(normalized)){
         counts <- normalized
@@ -13,6 +14,20 @@ DEreport <- function(DE, counts = NULL, groups = NULL,
     if(identical(DE,FALSE)){
         return(invisible(NULL))
     }else{
+        if(!is.null(genes)){
+            rownames(DE) <- DE[,genes]
+            rownames(counts) <- counts[,genes]
+            counts <- data.matrix(counts[,-genes])
+        }
+        if(!is.null(pvalue) && pvalue %in% colnames(DE)){
+            colnames(DE)[colnames(DE)==pvalue] <- "pvalue"
+        }
+        if(!is.null(baseMean) && baseMean %in% colnames(DE)){
+            colnames(DE)[colnames(DE)==baseMean] <- "baseMean" 
+        }
+        if(!is.null(log2FoldChange) && log2FoldChange %in% colnames(DE)){
+            colnames(DE)[colnames(DE)==log2FoldChange] <- "log2FoldChange" 
+        }
         createReport(DE, counts, groups, cutoff, normalized, directory)
     }
 }
@@ -49,7 +64,7 @@ createReport <- function(DE, counts, groups, cutoff, normalized, directory){
         if(normalized){
             CPM <- counts[genes,]
         }else{
-            CPM <- cpm(counts[genes,])
+            CPM <- edgeR::cpm(counts[genes,])
         }
     }
 
