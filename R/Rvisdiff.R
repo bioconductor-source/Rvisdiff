@@ -1,6 +1,7 @@
 DEreport <- function(DE, counts = NULL, groups = NULL,
     cutoff = 0.05, normalized = NULL, genes = NULL, pvalue = NULL,
-    baseMean = NULL, log2FoldChange = NULL, directory = "DEreport"){
+    padj = NULL, stat = NULL, baseMean = NULL, log2FoldChange = NULL,
+    directory = "DEreport"){
 
     if(!is.null(normalized)){
         counts <- normalized
@@ -9,7 +10,7 @@ DEreport <- function(DE, counts = NULL, groups = NULL,
         normalized <- FALSE
     }
 
-    DE <- handleDEbyClass(DE, counts, cutoff, normalized, directory)
+    DE <- handleDEbyClass(DE, counts, groups, cutoff, normalized, directory)
 
     if(identical(DE,FALSE)){
         return(invisible(NULL))
@@ -17,16 +18,13 @@ DEreport <- function(DE, counts = NULL, groups = NULL,
         if(!is.null(genes)){
             rownames(DE) <- DE[,genes]
             rownames(counts) <- counts[,genes]
-            counts <- data.matrix(counts[,-genes])
+            counts <- data.matrix(counts[,-which(genes==colnames(counts))])
         }
-        if(!is.null(pvalue) && pvalue %in% colnames(DE)){
-            colnames(DE)[colnames(DE)==pvalue] <- "pvalue"
-        }
-        if(!is.null(baseMean) && baseMean %in% colnames(DE)){
-            colnames(DE)[colnames(DE)==baseMean] <- "baseMean" 
-        }
-        if(!is.null(log2FoldChange) && log2FoldChange %in% colnames(DE)){
-            colnames(DE)[colnames(DE)==log2FoldChange] <- "log2FoldChange" 
+        for(value in c("pvalue","padj","stat","baseMean","log2FoldChange")){
+            value0 <- get0(value)
+            if(!is.null(value0) && value0 %in% colnames(DE)){
+                colnames(DE)[colnames(DE)==value0] <- value
+            }
         }
         createReport(DE, counts, groups, cutoff, normalized, directory)
     }
@@ -34,8 +32,6 @@ DEreport <- function(DE, counts = NULL, groups = NULL,
 
 createReport <- function(DE, counts, groups, cutoff, normalized, directory){
     create_directory(directory)
-
-    groups <- checkGroups(DE,groups)
 
     if(!inherits(DE,'data.frame')){
         DE <- as.data.frame(DE)
@@ -71,47 +67,45 @@ createReport <- function(DE, counts, groups, cutoff, normalized, directory){
     createHTML(DE, CPM, cutoff, groups, normalized, directory)
 }
 
-checkGroups <- function(DE,groups){
-    if(is.null(groups)){
-        if(inherits(DE,"DESeqDataSet")){
-            groups <- colData(DE)$conditions
-        }else if(inherits(DE,"DGEList")){
-            groups <- DE$samples$group
-        }else if(inherits(DE,"DGEExact") || inherits(DE,"DGELRT")){
-            if(!is.null(groups) &&
-                !identical(setdiff(groups, DE$comparison), character(0))){
-                groups <- NULL
-                warning("groups: there are unmatching groups")
-            }
-        }else if(inherits(DE,"MArrayLM")){
-            # TODO
-        }
-    }
-    return(groups)
-}
-
 getColnamesJSON <- function(colnamesDE){
     pvalue <- "pvalue"
     if("P.Value" %in% colnamesDE)
         pvalue <- "P.Value"
     if("PValue" %in% colnamesDE)
         pvalue <- "PValue"
+    if(!pvalue %in% colnamesDE)
+        warning(
+"Missing pvalue in DE results. Valid names for pvalue are 'pvalue', 'P.Value',
+'PValue' or you can especify a custom name in pvalue argument.")
 
     padj <- "padj"
     if("FDR" %in% colnamesDE)
         padj <- "FDR"
     if("adj.P.Val" %in% colnamesDE)
         padj <- "adj.P.Val"
+    if(!padj %in% colnamesDE)
+        warning(
+"Missing padj in DE results. Valid names for padj are 'padj', 'FDR',
+'adj.P.Val' or you can especify a custom name in padj argument.")
 
     log2FC <- "log2FoldChange"
     if("logFC" %in% colnamesDE)
         log2FC <- "logFC"
+    if(!log2FC %in% colnamesDE)
+        warning(
+"Missing log2FoldChange in DE results. Valid names for log2FoldChange are
+'log2FoldChange', 'logFC' or you can especify a custom name in log2FoldChange
+argument.")
 
     expMean <- "baseMean"
     if("AveExpr" %in% colnamesDE)
         expMean <- "AveExpr"
     if("logCPM" %in% colnamesDE)
         expMean <- "logCPM"
+    if(!expMean %in% colnamesDE)
+        warning(
+"Missing baseMean in DE results. Valid names for baseMean are 'baseMean',
+'AveExpr', 'logCPM' or you can especify a custom name in baseMean argument.")
 
     stat <- "stat"
     if("t" %in% colnamesDE)
@@ -138,34 +132,42 @@ createHTML <- function(DE, CPM, cutoff, groups, normalized, directory){
         ',"names":', getColnamesJSON(colnames(DE)), ',"cutoff":', cutoff,
         ',"groups":', groups, ',"normalized":', normalized, '}')
     www <- wwwDirectory()
-    html <- scan(file = paste0(www, "/template.html"), what = character(0),
+    html <- scan(file = file.path(www,"template.html"), what = character(0),
         sep = "\n", quiet = TRUE)
     html <- sub("<!--json-->",
         paste0('<script type="application/json" id="data">',
         json, '</script>'), html)
 
-    dir.create(paste0(directory,"/js"),FALSE)
-    dir.create(paste0(directory,"/css"),FALSE)
-    dir.create(paste0(directory,"/images"),FALSE)
+    dir.create(file.path(directory,"js"),FALSE)
+    dir.create(file.path(directory,"css"),FALSE)
+    dir.create(file.path(directory,"images"),FALSE)
     for(i in seq_len(nrow(dependencies))){
-        file.copy(paste0(www,"/",dependencies[i,1]),
-            paste0(directory,"/",dependencies[i,2]))
+        file.copy(file.path(www,dependencies[i,1]),
+            file.path(directory,dependencies[i,2]))
     }
-    write(html,paste0(directory,"/index.html"))
+    write(html,file.path(directory,"index.html"))
     msg <- paste0("The report has been generated in the \"",
         normalizePath(directory),"\" path.")
     message(msg)
 }
 
-handleDEbyClass <- function(DE, counts, cutoff, normalized, directory){
+handleDEbyClass <- function(DE, counts, groups, cutoff, normalized, directory){
     if(inherits(DE,"DESeqDataSet")){
-        DE <- handleDESeqDataSet(DE,counts,cutoff,normalized,directory)
-    }else if(inherits(DE,"DGEList")){
-        DE <- handleDGEList(DE,counts,cutoff,normalized,directory)
-    }else if(inherits(DE,"DGEExact") || inherits(DE,"DGELRT")){
+        handleDESeqDataSet(DE,counts,cutoff,normalized,directory)
+        return(FALSE)
+    }
+    if(inherits(DE,"DGEList")){
+        handleDGEList(DE,counts,cutoff,normalized,directory)
+        return(FALSE)
+    }
+    if(inherits(DE,"DGEExact") || inherits(DE,"DGELRT")){
         DE <- topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
-    }else if(inherits(DE,"MArrayLM")){
-        DE <- handleMArrayLM(DE,counts,cutoff,normalized,directory)
+        createReport(DE, counts, groups, cutoff, normalized, directory)
+        return(FALSE)
+    }
+    if(inherits(DE,"MArrayLM")){
+        handleMArrayLM(DE,counts,cutoff,normalized,directory)
+        return(FALSE)
     }
     return(DE)
 }
@@ -196,15 +198,16 @@ handleDESeqDataSet <- function(DE,counts,cutoff,normalized,directory){
                         subcounts <- counts[,subsamples]
                     createReport(results(DE, independentFiltering = FALSE,
                         contrast = contrast), subcounts, subgroups, cutoff,
-                        normalized, paste0(directory,"/",
+                        normalized, file.path(directory,
                         paste0(contrast,collapse="_")))
                     nav <- c(nav,paste0(contrast,collapse="_"))
                 }
             }
             metaIndex(nav,directory)
-            return(FALSE)
+        }else{
+            createReport(results(DE,independentFiltering=FALSE), counts,
+                        coldata$dex, cutoff, normalized, directory)
         }
-        return(results(DE,independentFiltering=FALSE))
 }
 
 handleDGEList <- function(DE,counts,cutoff,normalized,directory){
@@ -226,15 +229,16 @@ handleDGEList <- function(DE,counts,cutoff,normalized,directory){
             edger <- topTags(edger, n=nrow(DE), 
                 adjust.method="BH", sort.by="none")
             createReport(edger, subcounts, subgroups, cutoff, normalized,
-                paste0(directory,"/",paste0(cmbs,collapse="_")))
+                file.path(directory,paste0(cmbs,collapse="_")))
             nav <- c(nav,paste0(cmbs,collapse="_"))
         }
         metaIndex(nav,directory)
-        return(FALSE)
+    }else{
+        groups <- DE$samples$group
+        DE <- exactTest(DE,pair=c(1,2))
+        DE <- topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
+        createReport(DE, counts, groups, cutoff, normalized, directory)
     }
-    DE <- exactTest(DE,pair=c(1,2))
-    DE <- topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
-    return(DE)
 }
 
 handleMArrayLM <- function(DE,counts,cutoff,normalized,directory){
@@ -243,17 +247,20 @@ handleMArrayLM <- function(DE,counts,cutoff,normalized,directory){
             create_directory(directory)
             nav <- character(0)
             if(!is.null(DE$contrasts)){
-                if(!is.null(counts))
+                if(!is.null(counts)){
                     samples <- colnames(counts)
-                else
+                }else{
                     samples <- as.character(seq_len(nrow(DE$design)))
+                }
                 groups <- character(length(samples))
                 datanames <- rownames(DE$contrasts)[
                     as.logical(DE$contrasts[,1])]
                 for(i in seq_along(samples)){
-                    for(j in datanames)
-                        if(DE$design[i,j]==1)
+                    for(j in datanames){
+                        if(DE$design[i,j]==1){
                             groups[i] <- j
+                        }
+                    }
                 }
                 names(groups) <- samples
                 for(i in seq_len(ncol(DE$contrasts))){
@@ -276,10 +283,11 @@ handleMArrayLM <- function(DE,counts,cutoff,normalized,directory){
                 }
             }
             metaIndex(nav,directory)
-            return(FALSE)
+        }else{
+            createReport(topTable(DE, coef = 2, number = nrow(DE),
+                sort.by = "none", adjust.method = "BH"), counts,
+                NULL, cutoff, normalized, directory)
         }
-        return(topTable(DE, coef = 2, number = nrow(DE),
-            sort.by = "none", adjust.method = "BH"))
 }
 
 topTableReport <- function(DE, nav, colname, i, counts, subgroups, cutoff,
@@ -291,25 +299,25 @@ topTableReport <- function(DE, nav, colname, i, counts, subgroups, cutoff,
     createReport(topTable(DE, coef = i, number = nrow(DE),
         sort.by = "none", adjust.method = "BH"), subcounts,
         subgroups, cutoff, normalized,
-        paste0(directory,"/",colname))
+        file.path(directory,colname))
     return(c(nav,colname))
 }
 
 metaIndex <- function(nav,directory){
     www <- wwwDirectory()
-    html <- scan(file = paste0(www, "/meta.html"), what = character(0),
+    html <- scan(file = file.path(www, "meta.html"), what = character(0),
         sep = "\n", quiet = TRUE)
 
     nav <- paste0("<li><a href=\"", nav, "/index.html\">",
         nav, "</a></li>", collapse="")
     html <- sub("<!--nav-->",paste0("<ul>",nav,"</ul>"),html)
 
-    dir.create(paste0(directory,"/css"),FALSE)
+    dir.create(file.path(directory,"css"),FALSE)
     for(i in c(5,6)){
-        file.copy(paste0(www,"/",dependencies[i,1]),
-            paste0(directory,"/",dependencies[i,2]))
+        file.copy(file.path(www,dependencies[i,1]),
+            file.path(directory,dependencies[i,2]))
     }
-    write(html,paste0(directory,"/index.html"))
+    write(html,file.path(directory,"index.html"))
     msg <- paste0("The index has been generated in the \"",
         normalizePath(directory),"\" path.")
     message(msg)

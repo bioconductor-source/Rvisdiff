@@ -4,12 +4,13 @@ author: "David Barrios and Carlos Prieto"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('Rvisdiff')`"
 abstract: >
-  Rvisdiff is an R/Bioconductor package which generates an interactive interface
-  for the interpretation of differential expression results. It generates a
-  local Web page which enables the exploration of statistical analysis results
-  with the generation of auto-analytical visualizations. The package supports as
-  input the output of popular differential expression packages such as DESeq2,
-  EdgeR and limma.
+  `Rvisdiff` is an R/Bioconductor package which generates an interactive
+  interface for the interpretation of differential expression results. It
+  generates a local Web page which enables the exploration of statistical
+  analysis results with the generation of auto-analytical visualizations. The
+  package supports as input the output of popular differential expression
+  packages such as `r BiocStyle::Biocpkg("DESeq2")`,
+  `r BiocStyle::Biocpkg("edgeR")` and `r BiocStyle::Biocpkg("limma")`.
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -21,8 +22,8 @@ vignette: >
 
 # Getting started
 
-Rvisdiff is an R package distributed as part of the Bioconductor project. To
-install the package, start R and enter:
+`Rvisdiff` is an R package distributed as part of the Bioconductor project.
+To install the package, start R and enter:
 
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -30,10 +31,10 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 BiocManager::install("Rvisdiff")
 ```
-The GitHub repository for Rvisdiff is https://github.com/BioinfoUSAL/Rvisdiff.
+The GitHub repository for `Rvisdiff` is https://github.com/BioinfoUSAL/Rvisdiff.
 This is the place to file an issue, report a bug, or provide a pull request.
 
-Once Rvisdiff is installed, it can be loaded by the following command.
+Once `Rvisdiff` is installed, it can be loaded by the following command.
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 library("Rvisdiff")
 ```
@@ -44,15 +45,16 @@ Differential expression analysis generates a big report which needs a manual
 inspection for the optimization and interpretation of results. Researchers have
 designed visualization techniques to facilitate these tasks but their generation
 with code or statistics packages avoids the quick and massive exploration of
-results. We have designed Rvisdiff to integrate graphs in an easy to use and
+results. We have designed `Rvisdiff` to integrate graphs in an easy to use and
 interactive web page.The user can explore the differential expression results
 and the source expression data in the same view.
 
 As input data the package receives two tables with the differential expression
 results and the raw/normalized expression data. It detects the default output of
-DESeq2, EdgeR and limma packages and no data conversion is needed. The user can
-also generate a custom data frame which integrates a statistical testing output
-with a fold change and mean calculation for each variable. 
+`r BiocStyle::Biocpkg("DESeq2")`, `r BiocStyle::Biocpkg("edgeR")` and
+`r BiocStyle::Biocpkg("limma")` packages and no data conversion is needed. The
+user can also generate a custom data frame which integrates a statistical
+testing output with a fold change and mean calculation for each variable. 
 
 As output the package generates a local HTML page that can be seen in a Web
 browser. It is not necessary the installation of additional software such as
@@ -63,15 +65,15 @@ privacy.
 
 # Input data
 
-In this example we use as input the airway data package which contains the
-read counts in genes for an RNA-Seq experiment on four human airway smooth
-muscle cell lines treated with dexamethasone. The code below shows how to load
-the package and the data extraction of main data features that we need for the
-differential expression analysis and the posterior visualization with Rvisdiff.
-The countdata variable contains a data frame with the number of sequence counts
-for each gene (rows) and sample (columns).  The coldata variable contains input
-phenotypes for the differential expression analysis and its posterior
-representation.
+In this example we use as input the `r BiocStyle::Biocpkg("airway")` data
+package which contains the read counts in genes for an RNA-Seq experiment on
+four human airway smooth muscle cell lines treated with dexamethasone. The code
+below shows how to load the package and the data extraction of main data
+features that we need for the differential expression analysis and the posterior
+visualization with `Rvisdiff`. The `countdata` variable contains a data frame
+with the number of sequence counts for each gene (rows) and sample (columns).
+The `coldata` variable contains input phenotypes for the differential expression
+analysis and its posterior representation.
 
 The following code loads the necessary libraries and formats the input sample
 conditions.
@@ -87,10 +89,10 @@ coldata <- colData(se)
 
 # Generating the Report
 
-## Generating Report From DESeq2 results
+## Generating Report From `r BiocStyle::Biocpkg("DESeq2")` results
 
 The code below shows how to perform a differential expression analysis with
-DESeq and its representation with Rvisdiff.
+`r BiocStyle::Biocpkg("DESeq2")` and its representation with `Rvisdiff`.
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 library(DESeq2)
 dds <- DESeqDataSet(se, design = ~ cell + dex)
@@ -99,10 +101,10 @@ dres <- results(dds, independentFiltering = FALSE)
 DEreport(dres, countdata, coldata$dex)
 ```
 
-## Generating Report From edgeR results
+## Generating Report From `r BiocStyle::Biocpkg("edgeR")` results
 
 The code below shows how to perform a differential expression analysis with
-edgeR and its representation with Rvisdiff.
+`r BiocStyle::Biocpkg("edgeR")` and its representation with `Rvisdiff`.
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 library(edgeR)
 design <- model.matrix(~ cell + dex, data = coldata)
@@ -114,10 +116,10 @@ tt <- topTags(de, n = Inf, adjust.method = "BH", sort.by = "none")
 DEreport(tt, countdata, coldata$dex) 
 ```
 
-## Generating Report From limma results
+## Generating Report From `r BiocStyle::Biocpkg("limma")` results
 
 The code below shows how to perform a differential expression analysis with
-limma and its representation with Rvisdiff.
+`r BiocStyle::Biocpkg("limma")` and its representation with `Rvisdiff`.
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 library(limma)
 design <- model.matrix(~ 0 + dex + cell, data = coldata)
@@ -134,7 +136,7 @@ DEreport(limmares, countdata, coldata$dex)
 ## Generating Report From Differential test results
 
 The code below shows how to perform a Wilcoxon test with expression data and its
-representation with Rvisdiff. This example can be also followed for the
+representation with `Rvisdiff`. This example can be also followed for the
 representation of resulting analysis from differential means tests.
 ```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 untrt <- countdata[,coldata$dex=="untrt"]
@@ -155,9 +157,9 @@ DEreport(wilcox, countdata, coldata$dex)
 ```
 
 # Resulting Graphical User Interface
-Figure 1 shows the resulting Web page generated with the DEreport function. The
-user can select which genes appear in the graphs selecting them in the results
-table. It contains the following graphs:
+Figure 1 shows the resulting Web page generated with the `DEreport` function.
+The user can select which genes appear in the graphs selecting them in the
+results table. It contains the following graphs:
 
 * Volcano Plot: It is a scatter plot in which the values of rate of change are
 plotted in logarithmic scale (log2foldchange) versus the p-value resulting from

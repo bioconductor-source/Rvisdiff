@@ -14,7 +14,8 @@ browser.
 \usage{
 DEreport(DE, counts = NULL, groups = NULL,
     cutoff = 0.05, normalized = NULL, genes = NULL, pvalue = NULL,
-    baseMean = NULL, log2FoldChange = NULL, directory = "DEreport")
+    padj = NULL, stat = NULL, baseMean = NULL, log2FoldChange = NULL,
+    directory = "DEreport")
 }
 \arguments{
 \item{DE}{a data.frame or object resulting from a differential expression
@@ -27,6 +28,10 @@ method (DESeq2, edgeR or limma).}
 \item{genes}{name of the column with genes in the DE and counts tables. It will
 take rownames by default}
 \item{pvalue}{name of the column with p value in the DE data. "pvalue" by
+default.}
+\item{padj}{name of the column with adjust p value in the DE data. "padj" by
+default.}
+\item{stat}{name of the column with statistic in the DE data. "stat" by
 default.}
 \item{baseMean}{name of the column with base mean in the DE data. "baseMean" by
 default.}

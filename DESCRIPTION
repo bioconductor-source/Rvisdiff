@@ -1,7 +1,7 @@
 Package: Rvisdiff
 Type: Package
-Version: 0.99.2
-Date: 2023-09-21
+Version: 0.99.3
+Date: 2023-09-26
 Title: Interactive Graphs for Differential Expression
 Description: Creates a muti-graph web page which allows the interactive exploration of differential expression results. The graphical web interface presents results as a table which is integrated with five interactive graphs: MA-plot, volcano plot, box plot, lines plot and cluster heatmap. Graphical aspect and information represented in the graphs can be customized by means of user controls. Final graphics can be exported as PNG format.
 License: GPL-2 | GPL-3

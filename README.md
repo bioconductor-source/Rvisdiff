@@ -5,6 +5,12 @@ Rvisdiff is an R/Bioconductor package which generates an interactive interface f
 # Install
 
 ```r
+# installing from bioconductor
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rvisdiff")
+
+# installing from github
 library(devtools)
 install_github('BioinfoUSAL/Rvisdiff')
 ```
