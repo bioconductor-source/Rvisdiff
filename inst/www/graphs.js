@@ -18,7 +18,13 @@ var groups = false,
     };
 
 window.onload = function(){
-  var json = JSON.parse(d3.select("#data").text());
+  try{
+    var json = JSON.parse(d3.select("#data").text());
+  }catch(e){
+    $(".loading").text("Error");
+    console.log(e);
+    return;
+  }
   cutoff = json.cutoff;
   if(json.normalized){
     normalized = true;

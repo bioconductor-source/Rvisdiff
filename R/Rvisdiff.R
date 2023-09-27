@@ -42,6 +42,9 @@ createReport <- function(DE, counts, groups, cutoff, normalized, directory){
             DE[[p]][is.na(DE[[p]])] <- 1
         }
     }
+    for(p in colnames(DE)){
+        DE[[p]][is.nan(DE[[p]])] <- NA
+    }
 
     genes <- rownames(DE)
     if(sum(duplicated(genes))){
@@ -153,6 +156,9 @@ createHTML <- function(DE, CPM, cutoff, groups, normalized, directory){
 
 handleDEbyClass <- function(DE, counts, groups, cutoff, normalized, directory){
     if(inherits(DE,"DESeqDataSet")){
+        if(!requireNamespace('DESeq2', quietly = TRUE)){
+            stop("Install 'DESeq2' to use this object.")
+        }
         handleDESeqDataSet(DE,counts,cutoff,normalized,directory)
         return(FALSE)
     }
@@ -161,11 +167,14 @@ handleDEbyClass <- function(DE, counts, groups, cutoff, normalized, directory){
         return(FALSE)
     }
     if(inherits(DE,"DGEExact") || inherits(DE,"DGELRT")){
-        DE <- topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
+        DE <- edgeR::topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
         createReport(DE, counts, groups, cutoff, normalized, directory)
         return(FALSE)
     }
     if(inherits(DE,"MArrayLM")){
+        if(!requireNamespace('limma', quietly = TRUE)){
+            stop("Install 'limma' to use this object.")
+        }
         handleMArrayLM(DE,counts,cutoff,normalized,directory)
         return(FALSE)
     }
@@ -173,7 +182,7 @@ handleDEbyClass <- function(DE, counts, groups, cutoff, normalized, directory){
 }
 
 handleDESeqDataSet <- function(DE,counts,cutoff,normalized,directory){
-        coldata <- colData(DE)
+        coldata <- SummarizedExperiment::colData(DE)
         datanames <- head(colnames(coldata),-1)
         keepdata <- vapply(datanames,function(x,data){
             vec <- data[[x]]
@@ -196,16 +205,16 @@ handleDESeqDataSet <- function(DE,counts,cutoff,normalized,directory){
                     subcounts <- NULL
                     if(!is.null(counts))
                         subcounts <- counts[,subsamples]
-                    createReport(results(DE, independentFiltering = FALSE,
-                        contrast = contrast), subcounts, subgroups, cutoff,
-                        normalized, file.path(directory,
-                        paste0(contrast,collapse="_")))
+                    createReport(DESeq2::results(DE,
+                        independentFiltering = FALSE, contrast = contrast),
+                        subcounts, subgroups, cutoff, normalized,
+                        file.path(directory, paste0(contrast,collapse="_")))
                     nav <- c(nav,paste0(contrast,collapse="_"))
                 }
             }
             metaIndex(nav,directory)
         }else{
-            createReport(results(DE,independentFiltering=FALSE), counts,
+            createReport(DESeq2::results(DE,independentFiltering=FALSE), counts,
                         coldata$dex, cutoff, normalized, directory)
         }
 }
@@ -225,8 +234,8 @@ handleDGEList <- function(DE,counts,cutoff,normalized,directory){
             subcounts <- NULL
             if(!is.null(counts))
                 subcounts <- counts[,subsamples]
-            edger <- exactTest(DE,pair=cmbs)
-            edger <- topTags(edger, n=nrow(DE), 
+            edger <- edgeR::exactTest(DE,pair=cmbs)
+            edger <- edgeR::topTags(edger, n=nrow(DE), 
                 adjust.method="BH", sort.by="none")
             createReport(edger, subcounts, subgroups, cutoff, normalized,
                 file.path(directory,paste0(cmbs,collapse="_")))
@@ -235,8 +244,8 @@ handleDGEList <- function(DE,counts,cutoff,normalized,directory){
         metaIndex(nav,directory)
     }else{
         groups <- DE$samples$group
-        DE <- exactTest(DE,pair=c(1,2))
-        DE <- topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
+        DE <- edgeR::exactTest(DE,pair=c(1,2))
+        DE <- edgeR::topTags(DE, n=nrow(DE), adjust.method="BH", sort.by="none")
         createReport(DE, counts, groups, cutoff, normalized, directory)
     }
 }
@@ -284,7 +293,7 @@ handleMArrayLM <- function(DE,counts,cutoff,normalized,directory){
             }
             metaIndex(nav,directory)
         }else{
-            createReport(topTable(DE, coef = 2, number = nrow(DE),
+            createReport(limma::topTable(DE, coef = 2, number = nrow(DE),
                 sort.by = "none", adjust.method = "BH"), counts,
                 NULL, cutoff, normalized, directory)
         }
@@ -296,7 +305,7 @@ topTableReport <- function(DE, nav, colname, i, counts, subgroups, cutoff,
     if(!is.null(counts))
         subcounts <- counts[,order(subgroups)]
     subgroups <- subgroups[order(subgroups)]
-    createReport(topTable(DE, coef = i, number = nrow(DE),
+    createReport(limma::topTable(DE, coef = i, number = nrow(DE),
         sort.by = "none", adjust.method = "BH"), subcounts,
         subgroups, cutoff, normalized,
         file.path(directory,colname))

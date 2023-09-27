@@ -1,3 +1,6 @@
+Changes in version 0.99.4 (2023-09-27)
++ DESeq2 and limma packages changed from 'Imports' to 'Suggests'
+
 Changes in version 0.99.3 (2023-09-26)
 + More checks on the input data
 + More arguments to provide the names of columns
