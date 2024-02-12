@@ -141,6 +141,9 @@ createHTML <- function(DE, CPM, cutoff, groups, normalized, directory){
         paste0('<script type="application/json" id="data">',
         json, '</script>'), html)
 
+    html <- sub("<!--version-->",
+        getCurrentVersion(), html)
+
     dir.create(file.path(directory,"js"),FALSE)
     dir.create(file.path(directory,"css"),FALSE)
     dir.create(file.path(directory,"images"),FALSE)
@@ -383,3 +386,11 @@ wwwDirectory <- function(){
     return(path)
 }
 
+getCurrentVersion <- function(){
+    path <- system.file("DESCRIPTION",package="Rvisdiff")
+    description <- scan(file = path, what = character(0),
+        sep = "\n", quiet = TRUE)
+    version <- description[substr(description,1,8)=="Version:"]
+    version <- sub("Version: ","",version)
+    return(version)
+}

@@ -1,40 +1,5 @@
 div.graph { position: relative; }
 
-text { font-size: 10px; font-family: sans-serif; }
-
-rect.button { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
-image.changeColor { cursor: pointer; }
-.rowClust .link, .colClust .link { vector-effect: non-scaling-stroke; fill: none; stroke: #ccc; stroke-width: 1.5px; shape-rendering: crispEdges; }
-.brush .extent{ fill-opacity: 0.15; stroke-width: 1px; fill: #333; stroke: #333; }
-
-.marker { fill: none; stroke: black; stroke-width: 3px; opacity: 0; }
-.axis path, .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
-.axis.grid .tick line { opacity: 0.2; }
-
-path.line { fill: none; }
-line.bound { stroke: black; fill: none; stroke-dasharray: 3,3; }
-
-.boxplot line, .boxplot rect, .boxplot circle { stroke: #000; stroke-width: 1px; }
-.boxplot rect { fill: #1f77b4; }
-.boxplot.g2 rect { fill: #ff7f0e; }
-.boxplot .center { stroke-dasharray: 3,3; }
-.boxplot .outlier { fill: none;  stroke: #000; }
-g.left-arrow, g.right-arrow { fill: #fff;  stroke: #000; stroke-width: 2px; }
-
-.g-a { fill: #aec7e8; }
-.g-b { fill: #ffbb78; }
-.g-split { stroke: #000; stroke-opacity: .18; shape-rendering: crispEdges; }
-
-.buttons rect { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
-.buttons text { stroke-width: 0.5px; font-size: 10px; fill: #444; }
-.buttons .axis path, .buttons .axis line { shape-rendering: auto; }
-.scale text { font-size: 12px; fill: #444; }
-line.link { stroke: #999; stroke-opacity: .6; }
-.linkText { font-size: 7px; fill: #999; }
-.net > .node > circle { stroke: #fff; stroke-width: 1.5px; }
-.node > text { fill: #333; }
-.area { opacity: 0.2; stroke-width: 3; }
-
 div.tooltip {
   position: absolute;
   z-index: 99;
@@ -149,4 +114,21 @@ body>header h1 {
 
 .loading {
   padding: 12rem 0 18rem 0;
+}
+
+ul.export-menu {
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #777777;
+  border-radius: 5px;
+  list-style-type: none;
+  display: inline-block;
+  width: 50px;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+ul.export-menu > li {
+  cursor: pointer;
 }

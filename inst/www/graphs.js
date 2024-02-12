@@ -1,3 +1,41 @@
+var svgStyles = `
+text { font-size: 10px; font-family: sans-serif; }
+
+rect.button { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
+image.changeColor { cursor: pointer; }
+.rowClust .link, .colClust .link { vector-effect: non-scaling-stroke; fill: none; stroke: #ccc; stroke-width: 1.5px; shape-rendering: crispEdges; }
+.brush .extent{ fill-opacity: 0.15; stroke-width: 1px; fill: #333; stroke: #333; }
+
+.marker { fill: none; stroke: black; stroke-width: 3px; opacity: 0; }
+.axis path, .axis line { fill: none; stroke: #aaa; shape-rendering: crispEdges; }
+.axis.grid .tick line { opacity: 0.2; }
+
+path.line { fill: none; }
+line.bound { stroke: black; fill: none; stroke-dasharray: 3,3; }
+
+.boxplot line, .boxplot rect, .boxplot circle { stroke: #000; stroke-width: 1px; }
+.boxplot rect { fill: #1f77b4; }
+.boxplot.g2 rect { fill: #ff7f0e; }
+.boxplot .center { stroke-dasharray: 3,3; }
+.boxplot .outlier { fill: none;  stroke: #000; }
+g.left-arrow, g.right-arrow { fill: #fff;  stroke: #000; stroke-width: 2px; cursor: pointer; }
+#boxplot g[clip-path] { cursor: grab; }
+
+.g-a { fill: #aec7e8; }
+.g-b { fill: #ffbb78; }
+.g-split { stroke: #000; stroke-opacity: .18; shape-rendering: crispEdges; }
+
+.buttons rect { fill: #888; stroke: #666; stroke-width: 1.5px; cursor: pointer; }
+.buttons text { stroke-width: 0.5px; font-size: 10px; fill: #444; }
+.buttons .axis path, .buttons .axis line { shape-rendering: auto; }
+.scale text { font-size: 12px; fill: #444; }
+line.link { stroke: #999; stroke-opacity: .6; }
+.linkText { font-size: 7px; fill: #999; }
+.net > .node > circle { stroke: #fff; stroke-width: 1.5px; }
+.node > text { fill: #333; }
+.area { opacity: 0.2; stroke-width: 3; }
+`;
+
 var groups = false,
     samples = false,
     groupnames = false,
@@ -18,6 +56,8 @@ var groups = false,
     };
 
 window.onload = function(){
+  d3.select("head").append("style").text(svgStyles);
+
   try{
     var json = JSON.parse(d3.select("#data").text());
   }catch(e){
@@ -64,11 +104,18 @@ window.onresize = function(){
 }
 
 function render_plots(){
-      plot("volcano",results.map(function(d){ return [d[idx.log2FC],-(Math.log(d[idx.pvalue])/Math.log(10))]; }),cols[idx.log2FC],"-log10 p-value");
-      var fnMap = function(d){ return [d[idx.expMean],d[idx.log2FC]]; };
-      if(cols[idx.expMean]=="baseMean")
-        fnMap = function(d){ return [Math.log(d[idx.expMean])/Math.log(2),d[idx.log2FC]]; };
-      plot("maplot",results.map(fnMap),cols[idx.expMean],cols[idx.log2FC]);
+  var width = $(window).width()-60,
+      height = 400;
+  if(width>768){
+    width = Math.floor(width/2);
+  }
+
+  plot("volcano",results.map(function(d){ return [d[idx.log2FC],-(Math.log(d[idx.pvalue])/Math.log(10))]; }),cols[idx.log2FC],"-log10 p-value",width,height);
+  var fnMap = function(d){ return [d[idx.expMean],d[idx.log2FC]]; };
+  if(cols[idx.expMean]=="baseMean"){
+    fnMap = function(d){ return [Math.log(d[idx.expMean])/Math.log(2),d[idx.log2FC]]; };
+  }
+  plot("maplot",results.map(fnMap),cols[idx.expMean],cols[idx.log2FC],width,height);
 }
 
 function filter_cpms(filter) {
@@ -214,7 +261,8 @@ function displayTable(sel, data, cols){
   }
 }
 
-function plot(id,data,xLab,yLab){
+function plot(id,data,xLab,yLab,width,height){
+  var canvasScale = 4;
 
   if(typeof data == 'undefined'){
     var selected = [],
@@ -242,12 +290,7 @@ function plot(id,data,xLab,yLab){
     return;
   }
 
-var width = $(window).width()-60,
-    height = 400,
-    margin = {top: 40, right: 40, bottom: 80, left: 90};
-
-if(width>768)
-  width = Math.floor(width/2);
+var margin = {top: 40, right: 40, bottom: 80, left: 90};
 
   var div = d3.select("#"+id);
   div.selectAll("*").remove();
@@ -335,12 +378,14 @@ var yAxis = d3.svg.axis()
      .append("xhtml:body")
        .style({"margin":"0px","padding":"0px","background-color":"none","width":width+"px","height":height+"px"})
        .append("canvas")
-         .attr("width", width)
-         .attr("height", height);
+         .attr("width", width*canvasScale)
+         .attr("height", height*canvasScale)
+         .style("width", width+"px")
+         .style("height", height+"px");
 
   var ctx = canvas.node().getContext("2d");
 
-  ctx.clearRect(0, 0, width, height);
+  ctx.clearRect(0, 0, width*canvasScale, height*canvasScale);
 
   ctx.fillStyle = "#3182bd";
   ctx.globalAlpha = 0.6;
@@ -382,12 +427,12 @@ var yAxis = d3.svg.axis()
 
   function drawCircle(ctx,dx,dy){
       ctx.beginPath();
-      ctx.arc(dx, dy, 3, 0, 2 * Math.PI, true);
+      ctx.arc(dx*canvasScale, dy*canvasScale, 3*canvasScale, 0, 2 * Math.PI, true);
       ctx.closePath();
       ctx.fill();
   }
 
-  pngExportButton(div);
+  pngExportButton(div,['png'],{ volcano: "VolcanoPlot", maplot: "MAplot" }[id]);
 }
 
 function linechart(rows,cols,data,groups){
@@ -509,7 +554,7 @@ var lineFunction = d3.svg.line()
     lines.attr("d",lineFunction)
   })
 
-  pngExportButton(div);
+  pngExportButton(div,['png','svg'],"LinesDiagram");
 }
 
 function boxplot(rows,cols,data,groups){
@@ -587,9 +632,17 @@ var color = d3.scale.category10();
         .style("text-anchor", "middle")
         .text(yLab)
 
-  var slider = svg.append("g")
+  var sliderparent = svg.append("g")
         .attr("clip-path", "url(#boxplot-clip)")
-        .append("g")
+
+  sliderparent.append("rect")
+  .attr("fill","transparent")
+  .attr("width",width)
+  .attr("height",height)
+  .attr("x",margin.left)
+  .attr("y",margin.top)
+
+  var slider = sliderparent.append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var boxes = slider.selectAll("g.gene")	   
@@ -657,17 +710,31 @@ var color = d3.scale.category10();
   arrow(svg,0);
   arrow(svg,1);
 
+  var pos;
+  sliderparent
+  .on("mousedown",function(){
+    sliderparent.style("cursor","grabbing");
+    pos = d3.mouse(this)[0];
+  })
+  .on("mouseup",function(){
+    sliderparent.style("cursor",null);
+    pos = pos - d3.mouse(this)[0];
+    if(pos!=0){
+      if(pos > 0){
+        pos = 1;
+      }else{
+        pos = 0;
+      }
+      moveBoxes(pos);
+    }
+  })
+
   function arrow(svg,dir){
     var g = svg.append("g")
        .attr("class",(dir?"right":"left")+"-arrow")
        .attr("transform","translate(" + (dir? margin.left+width+(margin.right/2) : margin.left/2) + "," + (margin.top+height-6) + ")")
        .on("click",function(){
-         var pos = d3.transform(slider.attr("transform")).translate,
-             newx = dir? pos[0]-width : pos[0]+width;
-         if((newx-margin.left)%width==0 && newx<=margin.left && newx>margin.left-((width*Math.ceil(rows.length/5))))
-           slider.transition()
-            .duration(750)
-            .attr("transform","translate("+newx+","+pos[1]+")")
+         moveBoxes(dir);
        })
 
        g.append("circle")
@@ -677,6 +744,15 @@ var color = d3.scale.category10();
 
        g.append("path")
        .attr("d",dir?"M-2,-3L2,0L-2,3":"M2,-3L-2,0L2,3")
+  }
+
+  function moveBoxes(dir){
+    var pos = d3.transform(slider.attr("transform")).translate,
+        newx = dir? pos[0]-width : pos[0]+width;
+    if((newx-margin.left)%width==0 && newx<=margin.left && newx>margin.left-((width*Math.ceil(rows.length/5))))
+      slider.transition()
+            .duration(750)
+            .attr("transform","translate("+newx+","+pos[1]+")")
   }
 
   function iqr(k) {
@@ -692,7 +768,7 @@ var color = d3.scale.category10();
     };
   }
 
-  pngExportButton(div);
+  pngExportButton(div,['png','svg'],"Boxplots");
 }
 
 
@@ -793,7 +869,9 @@ function heatmap(rows,cols,data,metadata,scaled){
     collapsed = [].concat.apply([], data);
 
   d3.select("body")
-    .on("click",function(){ d3.select(".scalePicker").remove(); })
+    .on("click",function(){
+      d3.select(this).selectAll(".scalePicker, .export-menu").remove();
+    })
 
   var tooltip = divHeatmap.append("div").attr("class","tooltip")
 
@@ -972,7 +1050,7 @@ function heatmap(rows,cols,data,metadata,scaled){
         })
 
     iconButton(divHeatmap,"colors",colorPNG,"Change Color Scale",scalePicker,{"position":"absolute","top":"30px","left":buttonLeftPos(divHeatmap)});
-    pngExportButton(divHeatmap);
+    pngExportButton(divHeatmap,['png','svg'],"Heatmap");
 
     function drawCells(cells){
       var cellWidth = x(1)-x(0),
@@ -1133,9 +1211,43 @@ function heatmap(rows,cols,data,metadata,scaled){
   }
 }
 
-function pngExportButton(sel){
+function pngExportButton(sel,options,title){
+  var job = null;
+  if(options.length==1){
+    if(options[0]=="png"){
+      job = function(){
+        getPNG(sel.select("svg").node(),title);
+      };
+    }else if(options[0]=="svg"){
+      job = function(){
+        getSVG(sel.select("svg").node(),title);
+      };
+    }
+  }else if(options.length>1){
+    job = function(){
+      d3.event.stopPropagation();
+      var body = d3.select("body");
+      body.selectAll(".export-menu").remove();
+      var coor = d3.mouse(body.node());
+      var menu = body.append("ul")
+      .attr("class","export-menu")
+      .style("top",(coor[1]+10)+"px")
+      .style("left",(coor[0]-25)+"px")
+      options.forEach(function(opt){
+        if(opt=="png"){
+          menu.append("li").text("PNG").on("click",function(){
+            getPNG(sel.select("svg").node(),title);
+          })
+        }else if(opt=="svg"){
+          menu.append("li").text("SVG").on("click",function(){
+            getSVG(sel.select("svg").node(),title);
+          })
+        }
+      })
+    };
+  }
   var svgIcon = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMTQiIHdpZHRoPSIxNCIgdmVyc2lvbj0iMS4xIiB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPgogPGVsbGlwc2Ugcng9IjYuNTI4IiBzdHJva2U9IiNjMGMwYzAiIHJ5PSI2LjUyOCIgY3k9IjciIGN4PSI3IiBzdHJva2Utd2lkdGg9Ii45NDQiIGZpbGw9IiNlMGUwZTAiLz4KIDxwYXRoIGQ9Im00LjI4NTIgMi4zNjY2djQuMzI1NWgtMi43OTgzbDIuNzU2MSAyLjg3MDkgMi43NTcgMi44NzEgMi43NTctMi44NzEgMi43NTYtMi44NzA5aC0yLjc5ODN2LTQuMzI1NWgtNS40MjkzeiIgZmlsbD0iIzYwNjA2MCIvPgo8L3N2Zz4K";
-  iconButton(sel,"png",svgIcon,"Export PNG",function(){ getPNG(sel.select("svg").node()); },{"position":"absolute","top":"10px","left":buttonLeftPos(sel)})
+  iconButton(sel,"png",svgIcon,"Export",job,{"position":"absolute","top":"10px","left":buttonLeftPos(sel)})
 }
 
 function getSVGstring(svg){
@@ -1160,22 +1272,39 @@ function getSVGstring(svg){
   return svgString;
 }
 
-function getPNG(svg){
+function getPNG(svg,title){
+  if(!title){
+    title = "graph";
+  }
+
+  var svgWidth = svg.getAttribute("width"),
+      svgHeight = svg.getAttribute("height"),
+      ratio = ratio = 4000 / svgWidth;
 
   var canvas = document.createElement("canvas");
-  canvas.width = svg.getAttribute("width");
-  canvas.height = svg.getAttribute("height");
+  canvas.width = svgWidth*ratio;
+  canvas.height = svgHeight*ratio;
   var ctx = canvas.getContext("2d");
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   var innerCanvas = svg.querySelector("canvas");
   if(innerCanvas){
     var x = innerCanvas.parentNode.parentNode.getAttribute("x"),
-        y = innerCanvas.parentNode.parentNode.getAttribute("y");
-    ctx.drawImage(innerCanvas, x, y);
-    var fo = svg.querySelector('foreignObject');
-    svg.removeChild(fo);
+        y = innerCanvas.parentNode.parentNode.getAttribute("y"),
+        w = parseInt(innerCanvas.style.width),
+        h = parseInt(innerCanvas.style.height);
+    ctx.drawImage(innerCanvas, x*ratio, y*ratio, w*ratio, h*ratio);
+    svg.querySelector('foreignObject').remove();
   }
+
+  var styles = document.createElement("style");
+  styles.textContent = svgStyles;
+  svg.appendChild(styles);
+  svg.querySelectorAll(".brushSlider, .left-arrow, .right-arrow").forEach(function(e){ e.remove(); });
+  svg.setAttribute("viewBox","0 0 "+svgWidth+" "+svgHeight);
+  svg.setAttribute("width",svgWidth*ratio);
+  svg.setAttribute("height",svgHeight*ratio);
+
   var DOMURL = self.URL || self.webkitURL || self;
   var img = new Image();
   var svgString = getSVGstring(svg);
@@ -1184,12 +1313,27 @@ function getPNG(svg){
   img.onload = function() {
     ctx.drawImage(img, 0, 0);
     canvas.toBlob(function(blob){
-      fileDownload(blob, 'graph.png');
+      fileDownload(blob, title+'.png');
     })
   };
   img.src = url;
-  if(innerCanvas)
-    window.dispatchEvent(new Event('resize'));
+  window.dispatchEvent(new Event('resize'));
+}
+
+function getSVG(svg,title){
+  if(!title){
+    title = "graph";
+  }
+
+  var styles = document.createElement("style");
+  styles.textContent = svgStyles;
+  svg.appendChild(styles);
+  svg.querySelectorAll(".brushSlider, .left-arrow, .right-arrow").forEach(function(e){ e.remove(); });
+
+  var svgString = new XMLSerializer().serializeToString(svg);
+  var blob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+  fileDownload(blob, title+'.svg');
+  window.dispatchEvent(new Event('resize'));
 }
 
 function fileDownload(blob,name){
